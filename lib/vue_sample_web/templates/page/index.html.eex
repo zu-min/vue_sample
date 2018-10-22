@@ -1,0 +1,50 @@
+<div class="jumbotron">
+  <h2><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h2>
+  <p class="lead">A productive web framework that<br />does not compromise speed and maintainability.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+
+<div id="app">
+  <h1>Posts</h1>
+  <table border="1">
+    <tr v-for="result in results">
+      <%# <td style="padding: 10px;">{{ result.title }}</td> %>
+      <%# <td style="padding: 10px;">{{ result.body }}</td> %>
+      <td><input type="text" v-model="result.title"></td>
+      <td><input type="text" v-model="result.body"></td>
+      <td><button v-on:click="onDelete(result.id)">削除</button></td>
+    </tr>
+  </table>
+  <div><button type="button" v-on:click="onUpdate">更新</button></div>
+</div>
+
+<script>
+  var app = new Vue({
+    el: '#app',
+    data:{
+      results: [],
+    },
+    mounted(){
+      axios.get('/posts')
+        .then(response => { this.results = response.data.data } )
+    },
+    methods:{
+      onUpdate: async function( evt ){
+        for ( var i = 0; i < this.results.length; i++ ){
+          console.log( '/posts/' + this.results[ i ].id )
+          await axios.put( '/posts/' + this.results[ i ].id, {'post': {'title': this.results[ i ].title, 'body':  this.results[ i ].body,}})
+          .then( response => { console.log( 'PUT: ' + response.status )})
+        }
+      },
+      onDelete: async function (id){
+        console.log(id)
+        await axios.delete( '/posts/' + id )
+          .then( response => { console.log( 'DELETE: ' + response.status )})
+      axios.get('/posts')
+        .then(response => { this.results = response.data.data } )
+      }
+    }
+  } )
+</script>
